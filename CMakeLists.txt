@@ -36,3 +36,6 @@ add_executable(showlog
 
 add_executable(volx
     volx2/volx.c)
+
+add_executable(xv3
+    xv3/xv3.c)
