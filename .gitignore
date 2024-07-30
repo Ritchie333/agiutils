@@ -1,0 +1,5 @@
+.vscode
+*.o
+showlog/showlog
+volx2/volx
+agic/bin

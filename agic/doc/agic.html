@@ -1,0 +1,116 @@
+<html><head><title>AGIC Documentation</title></head><body>
+<center><h1>AGI Logic Compiler Documentation</h1></center>
+<center><h3>Floating Hills Software</h3></center>
+<center><h3>Version 1.42</h3></center>
+<hr>
+<h2>What is AGIC?</h2>
+<p>Until recently, there has been no easy way to recompile the logic code included with AGI games.  This program, AGIC, is such a compiler.  With it, one can compile a modified or new logic file, including the AGI Template Game.</p>
+<p>The major benefits of using AGIC include:</p>
+<ul><li>AGIC will compile complex expressions in if statements down to the simple form needed by the AGI interpreter.</li>
+<li>AGIC includes error and limited type checking, making programming easier.</li>
+<li>AGIC can easily be used with the included GNU C preprocessor.  This allows one to use of #defines and #includes.</li>
+</ul>
+<p>AGIC and the associated utilities are free software.  The source code for AGIC can be used in your own programs provided certain restriction are met.  For information, read the COPYING file included with this distribution.  Help support our planet by writing more software under the GNU Public License.</p>
+<h2>Changes in version 1.42 of AGIC?</h2>
+<ul><li>The name centre.posn has been replaced with center.posn, the correct form.</li>
+<li>Return() works.</li>
+<li>Limited type checking for arguments of functions has been added.</li>
+<li>The lexer symbol length bug has been fixed.</li>
+<li>The C-style string \" \\ and \n are supported.</li>
+<li>Error checking recovers nicely after errors.</li>
+<li>More errors are now detected.</li>
+<li>The #message command is now available.</li>
+<li>Strings spanning more than one line are now supported.</li>
+<li>Parenthesis around goto labels are now optional.</li>
+<li>C-style indirection now works.</li>
+<li>Symbols with confusing characters may be surrounded with |'s</li>
+<li>The Template Game compiles as it should!</li>
+</ul>
+<h2>Where is the latest version of AGIC?</h2>
+<p>The latest version of AGIC and HTML-ized documents regarding it can be downloaded at http://krypton.mankato.msus.edu/~jimf/agic/agic.htm</p>
+<p>Questions regarding AGIC may be sent to greekcat@hotmail.com.</p>
+<hr>
+<center><h1>The Compiler</h1></center>
+<h2>Section 1.1 - Compiling a File</h2>
+<p>To compile a file, use the command line AGIC filename [-o object_filename] [-t token_filename] [-e output_filename].  By default, AGIC will use OBJECT and WORDS.TOK for the object and token filenames, respectively.  The output will normally go to LOGIC.OUT.  To make life easier, this distribution includes various batch files for compiling with the preprocessor.</p>
+<h2>Section 1.2 - Executing Compiled Files</h2>
+<p>To execute a logic file, one will need to glue the logic file and other resources back into volume and directory files.  There are automated utilities to do this (i.e., AGIGlue or AGI Studio).</p>
+<h2>Section 1.3 - Errors</h2>
+<ul>
+<li>C000 Warning: Unknown character - The compiler found a character in the source file that it did not know what to do with.  It has been ignored.</li>
+<li>C001 Error: Syntax error</li>
+<li>C002 Error: Could not resolve label - The source file included a goto to a label not appearing in the source file.</li>
+<li>C003 Error: Too many strings - The source file included more messages than AGI allows for.</li>
+<li>C004 Error: String already used - A defstr or #message attempted to set a message index already used.</li>
+<li>C005 Error: Could not resolve token - The compiler could not find the given token in the WORDS.TOK file.</li>
+<li>C006 Error: Could not resolve object - The compiler could not find the given object name in the OBJECT file.</li>
+<li>C007 Error: Could not resolve function - The compiler could not find a function with the given name in the AGI command list.</li>
+<li>C008 Error: Unterminated string constant - A string was begun but did not end with a " before the end of the line.</li>
+<li>C009 Fatal Error: Out of memory</li>
+<li>C010 Error: Bad string control code - A string included a \ code besides \\, \n, or \".</li>
+<li>C011 Error: Unterminated symbol - A symbol block was begun with | but was not terminated with another | before the end of the line.</li>
+<li>C012 Warning: Bad type - A variable was passed to a function wanting a number or a number was passed to a function wanting a variable.</li>
+<li>C013 Warning: Bad number of arguments - A function was passed too many or too few arguments.</li>
+<li>C014 Warning: Conditionals should use ==, not = - A conditional used a = instead of the more correct ==.  It has assumed that == was intended.</li>
+</ul>
+<hr>
+<center><h1>AGIC Language</h1></center>
+<p>For the most part, the language is just like a mix of C and the output from the SHOWLOG program.  The most important difference is the existence of a #message directive.</p>
+<h2>Section 2.1 - Variables</h2>
+<p>All variables are referenced as a lower-case v followed by the variable index.  For example, variable number 3 is simply v3.</p>
+<p>The included C-preprocessor can be used to name variables.</p>
+<h2>Section 2.2 - Flags</h2>
+<p>Flags can be referenced simply by the number (allowing the function to discern the difference) or by a lower-case f followed by the flag index.  For example, flag 5 is simply f5.  Flags are turned into numbers in the current version of AGIC.</p>
+<p>The included C-preprocessor can be used to name flags.</p>
+<h2>Section 2.3 - Functions</h2>
+<p>Functions are called as in C, (i.e., foo(2,bob); or shakey(); ).</p>
+<p>AGIC now includes limited type checking.  The only distinction, however, is made between variable and non-variable arguments.  Thus, load.view.v(12) will cause a warning, but set(5) and set(f5) are equivalent.</p>
+<h2>Section 2.4 - Conditionals</h2>
+<p>An if statement is the only branching command in AGIC.  An if statement is as follows:</p>
+<pre>
+if (expression)
+  {
+  logic
+  }
+else  // optional!
+  {
+  more logic
+  }
+</pre>
+<p>Although AGI, places strict limits on the complexity of boolean expressions, AGIC overcomes those limits by applying DeMorgan's laws to all boolean expressions until they are simplified down to a level applicable to direct machine code translation.  Thus, the normal C logical operators (such as ! for not, && for and, and || for or) are legal in any combination one desires.  The compiler will simplify the expression down to the appropriate level.</p>
+<h2>Section 2.5 - Goto</h2>
+<p>AGIC also allows the programmer to use the GOTO command.  To define a label, simply begin a line with the name of the label (without spaces) followed by a colon.  To goto a label, use the syntax goto(labelname); or now goto labelname.  Calling a labelname that is not defined until after the goto is perfectly acceptable.</p>
+<p>Although both parenthesis and parenthesisless forms of goto are acceptable, the parenthesis form is preferred.  All other commands in AGI require parenthesis and goto should not be an exception.</p>
+<h2>Section 2.6 - Messages</h2>
+<p>One can use a string as a parameter to any function by simply including that string, enclosed in quotes (", not '), as the parameter.  The compiler will allocate a message table entry and store the string there.  If one uses the same string again, the compiler will reference the old message table entry.</p>
+<p>Strings can include the usual \\, \n, and \" as used in C.  They can also span multiple lines as they would in C.</p>
+<h2>Section 2.6 - #message and defstr</h2>
+<p>Sometimes, it is necessary that a particular string be assigned a particular entry in the message table.  To do this, one uses the #message command.  #message stores the given string at the given message table entry.  The #message directive is simply:
+<pre>
+#message num "string text goes here"
+</pre>
+For compatability, defstr is still supported.
+<h2>Section 2.7 - Arithmetic</h2>
+<p>When using AGIC, it is not always necessary to call functions to perform most arithmetic operations.  Rather, these operations can be performed individually on a line.  In particular, AGIC supports the C operators =, +=, -=, *=, /=, ++, and -- between variables and integers.</p>
+<h2>Section 2.8 - Indirection</h2>
+<p>AGIC also supports c-like indirection commands, in particular:</p>
+<pre>
+v10 = *v22; // rindirect(v10,v22)
+*v10 = 22;  // lindirectn(v10,22);
+*v10 = v22; // lindirectv(v10,v22);
+</pre>
+<h2>Section 2.9 - The Preprocessor</h2>
+<p>This release of AGIC includes a Win32 port of the GNU C preprocessor.  This can be used quite easily on AGI logic files, allowing variables to be defined and files to be included.  The compiler is designed to deal with the modified output from the preprocessor.  Comments and whatnot are also taken care of by the preprocessor.</p>
+<h2>Section 2.10 - The [ comment</h2>
+<p>Any text following a [ is considered to be a comment.</p>
+<h2>Section 2.11 - Symbol blocks</h2>
+<p>At times, it is impossible to compile a logic file because it references some symbol which contains parenthesis or some other character which confuses the compiler.  In those cases, the symbol may be surrounded with |'s.  For example:
+<pre>
+if (has(|Buckazoid(s)|)) { ... }
+</pre>
+<p>Symbol blocks are an unstandard feature of AGIC.</p>
+<hr>
+<center><h1>The Sample Program</h1></center>
+<p>The sample program has been removed beginning with AGIC v1.42.  We suggest that you download the excellent Template Game.  Since AGIC now compiles the template game, it is a far more interesting choice than a simple program which displays a picture.</p>
+<hr>
+</body></html>
